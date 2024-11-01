@@ -1084,19 +1084,9 @@
         <option name="FOREGROUND" value="c586c0" />
       </value>
     </option>
-    <option name="ReSharper.CSHARP_FIELD_IDENTIFIER">
-      <value>
-        <option name="FOREGROUND" value="dadada" />
-      </value>
-    </option>
     <option name="ReSharper.CSHARP_NAMESPACE_IDENTIFIER">
       <value>
         <option name="FOREGROUND" value="4ec9b0" />
-      </value>
-    </option>
-    <option name="ReSharper.CSHARP_PROPERTY_IDENTIFIER">
-      <value>
-        <option name="FOREGROUND" value="dadada" />
       </value>
     </option>
     <option name="SASS_COMMENT" baseAttributes="CSS.COMMENT" />
