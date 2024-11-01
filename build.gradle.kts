@@ -65,6 +65,13 @@ tasks {
     }
 
     patchPluginXml {
+        // As a result of disabling building searchable options, the Settings that your plugin
+        // provides won't be searchable in the Settings dialog. Disabling of the task is suggested
+        // for plugins that are not intended to provide custom settings.
+        buildSearchableOptions {
+            enabled = false
+        }
+
         version = properties("pluginVersion")
         sinceBuild = properties("pluginSinceBuild")
         // untilBuild = properties("pluginUntilBuild")
