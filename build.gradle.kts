@@ -39,6 +39,9 @@ intellij {
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
     plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
+
+    // set so it does not need to be updated for every new version of JetBrains
+    updateSinceUntilBuild.set(false)
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -62,9 +65,16 @@ tasks {
     }
 
     patchPluginXml {
+        // As a result of disabling building searchable options, the Settings that your plugin
+        // provides won't be searchable in the Settings dialog. Disabling of the task is suggested
+        // for plugins that are not intended to provide custom settings.
+        buildSearchableOptions {
+            enabled = false
+        }
+
         version = properties("pluginVersion")
         sinceBuild = properties("pluginSinceBuild")
-        untilBuild = properties("pluginUntilBuild")
+        // untilBuild = properties("pluginUntilBuild")
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
