@@ -110,7 +110,6 @@ tasks {
     }
 
     signPlugin {
-        println("CERTIFICATE_CHAIN: '${providers.environmentVariable("CERTIFICATE_CHAIN").get()}'")
         password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
         certificateChain.set(providers.environmentVariable("CERTIFICATE_CHAIN"))
         privateKey.set(providers.environmentVariable("PRIVATE_KEY"))
