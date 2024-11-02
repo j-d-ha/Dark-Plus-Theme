@@ -14,7 +14,8 @@ plugins {
 }
 
 group = properties("pluginGroup").get()
-version = properties("pluginVersion").get()
+// version = properties("pluginVersion").get()
+version = project.changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
 
 // Configure project's dependencies
 repositories {
@@ -78,7 +79,7 @@ tasks {
     patchPluginXml {
         val changelog = project.changelog // local variable for configuration cache compatibility
 
-        version = changelog.getAll().keys.toList().first()
+        version = changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
         sinceBuild = properties("pluginSinceBuild")
         // untilBuild = properties("pluginUntilBuild")
 
@@ -97,7 +98,7 @@ tasks {
                 }
             }
 
-        changeNotes = properties("pluginVersion").map { pluginVersion ->
+        changeNotes = version.map { pluginVersion ->
             with(changelog) {
                 renderItem(
                     (getOrNull(pluginVersion) ?: getUnreleased())

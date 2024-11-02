@@ -2,6 +2,8 @@
 
 # Dark-Plus-Theme Changelog
 
+## [Unreleased]
+
 ## [1.0.9] - 2024-08-09
 
 ### Changed
