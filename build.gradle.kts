@@ -76,7 +76,9 @@ tasks {
     }
 
     patchPluginXml {
-        version = properties("pluginVersion")
+        val changelog = project.changelog // local variable for configuration cache compatibility
+
+        version = changelog.getAll().keys.toList().first()
         sinceBuild = properties("pluginSinceBuild")
         // untilBuild = properties("pluginUntilBuild")
 
@@ -95,8 +97,6 @@ tasks {
                 }
             }
 
-        val changelog = project.changelog // local variable for configuration cache compatibility
-        // Get the latest available change notes from the changelog file
         changeNotes = properties("pluginVersion").map { pluginVersion ->
             with(changelog) {
                 renderItem(
@@ -110,14 +110,16 @@ tasks {
     }
 
     signPlugin {
+        println("CERTIFICATE_CHAIN: '${providers.environmentVariable("CERTIFICATE_CHAIN").get()}'")
+        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
         certificateChain.set(providers.environmentVariable("CERTIFICATE_CHAIN"))
         privateKey.set(providers.environmentVariable("PRIVATE_KEY"))
-        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
     }
 
     publishPlugin {
-        dependsOn("patchChangelog")
+        // dependsOn("patchChangelog")
         token.set(providers.environmentVariable("PUBLISH_TOKEN"))
+
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel

@@ -2,17 +2,15 @@
 
 # Dark-Plus-Theme Changelog
 
-## [Unreleased]
-
-## [1.0.6] - 2024-10-31
+## [1.0.9] - 2024-08-09
 
 ### Changed
 
 - Updated colors to match VSCode
 
-## [1.0.5] - 2024-08-09
+## [1.0.6] - 2024-10-31
 
-### Changed 
+### Changed
 
 - Removed max IntelliJ version requirements.
 
