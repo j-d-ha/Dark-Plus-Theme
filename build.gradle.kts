@@ -84,13 +84,6 @@ tasks {
     }
 
     patchPluginXml {
-        // // As a result of disabling building searchable options, the Settings that your plugin
-        // // provides won't be searchable in the Settings dialog. Disabling of the task is suggested
-        // // for plugins that are not intended to provide custom settings.
-        // buildSearchableOptions {
-        //     enabled = false
-        // }
-        
         val changelog = project.changelog // local variable for configuration cache compatibility
 
         version = changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
