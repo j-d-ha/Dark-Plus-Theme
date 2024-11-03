@@ -14,7 +14,8 @@ plugins {
 }
 
 group = properties("pluginGroup").get()
-version = properties("pluginVersion").get()
+// version = properties("pluginVersion").get()
+version = project.changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
 
 // Configure project's dependencies
 repositories {
@@ -75,6 +76,13 @@ tasks {
         gradleVersion = properties("gradleVersion").get()
     }
 
+    // As a result of disabling building searchable options, the Settings that your plugin
+    // provides won't be searchable in the Settings dialog. Disabling of the task is suggested
+    // for plugins that are not intended to provide custom settings.
+    buildSearchableOptions {
+        enabled = false
+    }
+
     patchPluginXml {
         // // As a result of disabling building searchable options, the Settings that your plugin
         // // provides won't be searchable in the Settings dialog. Disabling of the task is suggested
@@ -82,8 +90,10 @@ tasks {
         // buildSearchableOptions {
         //     enabled = false
         // }
+        
+        val changelog = project.changelog // local variable for configuration cache compatibility
 
-        version = properties("pluginVersion")
+        version = changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
         sinceBuild = properties("pluginSinceBuild")
         // untilBuild = properties("pluginUntilBuild")
 
@@ -102,9 +112,7 @@ tasks {
                 }
             }
 
-        val changelog = project.changelog // local variable for configuration cache compatibility
-        // Get the latest available change notes from the changelog file
-        changeNotes = properties("pluginVersion").map { pluginVersion ->
+        changeNotes = version.map { pluginVersion ->
             with(changelog) {
                 renderItem(
                     (getOrNull(pluginVersion) ?: getUnreleased())
@@ -116,22 +124,24 @@ tasks {
         }
     }
 
-    // Configure UI tests plugin
-    // Read more: https://github.com/JetBrains/intellij-ui-test-robot
-    runIdeForUiTests {
-        systemProperty("robot-server.port", "8082")
-        systemProperty("ide.mac.message.dialogs.as.sheets", "false")
-        systemProperty("jb.privacy.policy.text", "<!--999.999-->")
-        systemProperty("jb.consents.confirmation.enabled", "false")
-    }
-
     signPlugin {
+        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
         certificateChain.set(providers.environmentVariable("CERTIFICATE_CHAIN"))
         privateKey.set(providers.environmentVariable("PRIVATE_KEY"))
-        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
     }
 
     publishPlugin {
+        dependsOn("patchChangelog")
         token.set(providers.environmentVariable("PUBLISH_TOKEN"))
+
+        // // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
+        // // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
+        // // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
+        // channels = properties("pluginVersion").map {
+        //     listOf(
+        //         it.substringAfter('-', "")
+        //             .substringBefore('.')
+        //             .ifEmpty { "default" })
+        // }
     }
 }
