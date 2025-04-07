@@ -468,6 +468,11 @@
                 <option name="FOREGROUND" value="d7ba7d"/>
             </value>
         </option>
+        <option name="GO_EXPORTED_INTERFACE_REFERENCE">
+            <value>
+                <option name="FOREGROUND" value="b7d5a2"/>
+            </value>
+        </option>
         <option name="HTML_ATTRIBUTE_NAME">
             <value>
                 <option name="FOREGROUND" value="8cd7ff"/>
