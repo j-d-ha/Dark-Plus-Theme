@@ -1326,5 +1326,29 @@
             </value>
         </option>
 
+        <!-- Custom Keywords for use with Kotlin DS L-->
+
+        <option name="CUSTOM_KEYWORD1_ATTRIBUTES">
+            <value>
+                <option name="FOREGROUND" value="d9a996"/>
+            </value>
+        </option>
+        <option name="CUSTOM_KEYWORD2_ATTRIBUTES">
+            <value>
+                <option name="FOREGROUND" value="d29daa"/>
+            </value>
+        </option>
+        <option name="CUSTOM_KEYWORD3_ATTRIBUTES">
+            <value>
+                <option name="FOREGROUND" value="7cb2df"/>
+            </value>
+        </option>
+        <option name="CUSTOM_KEYWORD4_ATTRIBUTES">
+            <value>
+                <option name="FOREGROUND" value="92ddce"/>
+                <option name="EFFECT_TYPE" value="1"/>
+            </value>
+        </option>
+
     </attributes>
 </scheme>
