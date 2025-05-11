@@ -4,8 +4,6 @@
 
 ## [Unreleased]
 
-## [1.0.11] - 2025-05-11
-
 ### Changed
 
 - Updated Go exported interface color.
