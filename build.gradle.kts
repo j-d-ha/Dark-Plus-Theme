@@ -1,140 +1,181 @@
+import java.io.FileReader
+import java.util.Properties
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
-fun properties(key: String) = providers.gradleProperty(key)
-fun environment(key: String) = providers.environmentVariable(key)
+// load .env file if it exists
+File(".env").takeIf(File::exists)?.let {
+    Properties().apply {
+        load(FileReader(it))
+        println(".env file found")
+    }
+}
 
 plugins {
     id("java") // Java support
     alias(libs.plugins.kotlin) // Kotlin support
-    alias(libs.plugins.gradleIntelliJPlugin) // Gradle IntelliJ Plugin
+    alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
 }
 
-group = properties("pluginGroup").get()
-// version = properties("pluginVersion").get()
-version = project.changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
+group = providers.gradleProperty("pluginGroup").get()
+
+version = providers.gradleProperty("pluginVersion").get()
+
+// Set the JVM language level used to build the project.
+kotlin { jvmToolchain(21) }
 
 // Configure project's dependencies
 repositories {
     mavenCentral()
+
+    // IntelliJ Platform Gradle Plugin Repositories Extension - read more:
+    // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
+    intellijPlatform { defaultRepositories() }
 }
 
-// Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
+// Dependencies are managed with Gradle version catalog - read more:
+// https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
-//    implementation(libs.annotations)
-}
+    testImplementation(libs.junit)
 
-// Set the JVM language level used to build the project.
-kotlin {
-    jvmToolchain(17)
-}
+    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more:
+    // https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    intellijPlatform {
+        create(
+            providers.gradleProperty("platformType"),
+            providers.gradleProperty("platformVersion"),
+        )
 
-// Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    pluginName = properties("pluginName")
-    version = properties("platformVersion")
-    type = properties("platformType")
+        // Plugin Dependencies. Uses `platformBundledPlugins` property from the gradle.properties
+        // file for bundled IntelliJ Platform plugins.
+        bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',') })
 
-    // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    plugins = properties("platformPlugins").map {
-        it.split(',')
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-    }
+        // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for
+        // plugin from JetBrains Marketplace.
+        plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
-    // set so it does not need to be updated for every new version of JetBrains
-    updateSinceUntilBuild.set(false)
-}
-
-// Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
-changelog {
-    groups.empty()
-    repositoryUrl = properties("pluginRepositoryUrl")
-}
-
-// Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
-// koverReport {
-//     defaults {
-//     }
-// }
-
-kover {
-    reports {
-        total {
-            xml {
-                onCheck = true
-            }
-        }
+        testFramework(TestFrameworkType.Platform)
     }
 }
 
-tasks {
-    wrapper {
-        gradleVersion = properties("gradleVersion").get()
-    }
+// Configure IntelliJ Platform Gradle Plugin - read more:
+// https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
+intellijPlatform {
+    pluginConfiguration {
+        name = providers.gradleProperty("pluginName")
+        version = providers.gradleProperty("pluginVersion")
 
-    // As a result of disabling building searchable options, the Settings that your plugin
-    // provides won't be searchable in the Settings dialog. Disabling of the task is suggested
-    // for plugins that are not intended to provide custom settings.
-    buildSearchableOptions {
-        enabled = false
-    }
-
-    patchPluginXml {
-        val changelog = project.changelog // local variable for configuration cache compatibility
-
-        version = changelog.getAll().keys.toList().first { Regex("""\d+\.\d+\.\d+""").matches(it) }
-        sinceBuild = properties("pluginSinceBuild")
-        // untilBuild = properties("pluginUntilBuild")
-
-        // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        pluginDescription =
+        // Extract the <!-- Plugin description --> section from README.md and provide for the
+        // plugin's manifest
+        description =
             providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
                 val start = "<!-- Plugin description -->"
                 val end = "<!-- Plugin description end -->"
 
                 with(it.lines()) {
                     if (!containsAll(listOf(start, end))) {
-                        throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+                        throw GradleException(
+                            "Plugin description section not found in README.md:\n$start ... $end"
+                        )
                     }
-                    subList(indexOf(start) + 1, indexOf(end)).joinToString("\n")
+                    subList(indexOf(start) + 1, indexOf(end))
+                        .joinToString("\n")
                         .let(::markdownToHTML)
                 }
             }
 
-        changeNotes = version.map { pluginVersion ->
-            with(changelog) {
-                renderItem(
-                    (getOrNull(pluginVersion) ?: getUnreleased())
-                        .withHeader(false)
-                        .withEmptySections(false),
-                    Changelog.OutputType.HTML,
-                )
+        val changelog = project.changelog // local variable for configuration cache compatibility
+        // Get the latest available change notes from the changelog file
+        changeNotes =
+            providers.gradleProperty("pluginVersion").map { pluginVersion ->
+                with(changelog) {
+                    renderItem(
+                        (getOrNull(pluginVersion) ?: getUnreleased())
+                            .withHeader(false)
+                            .withEmptySections(false),
+                        Changelog.OutputType.HTML,
+                    )
+                }
             }
+
+        ideaVersion {
+            sinceBuild = providers.gradleProperty("pluginSinceBuild")
+            untilBuild = providers.gradleProperty("pluginUntilBuild")
         }
     }
 
-    signPlugin {
-        password.set(providers.environmentVariable("PRIVATE_KEY_PASSWORD"))
-        certificateChain.set(providers.environmentVariable("CERTIFICATE_CHAIN"))
-        privateKey.set(providers.environmentVariable("PRIVATE_KEY"))
+    signing {
+        certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
+        privateKey = providers.environmentVariable("PRIVATE_KEY")
+        password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
     }
 
-    publishPlugin {
-        dependsOn("patchChangelog")
-        token.set(providers.environmentVariable("PUBLISH_TOKEN"))
+    publishing {
+        token = providers.environmentVariable("PUBLISH_TOKEN")
+        // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release
+        // labels, like 2.1.7-alpha.3
+        // Specify pre-release label to publish the plugin in a custom Release Channel
+        // automatically. Read more:
+        // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
+        channels =
+            providers.gradleProperty("pluginVersion").map {
+                listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" })
+            }
+    }
 
-        // // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
-        // // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
-        // // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        // channels = properties("pluginVersion").map {
-        //     listOf(
-        //         it.substringAfter('-', "")
-        //             .substringBefore('.')
-        //             .ifEmpty { "default" })
-        // }
+    pluginVerification {
+        ides {
+            val productReleases = ProductReleasesValueSource().get()
+            println(
+                "The following builds are available in the verification range: $productReleases"
+            )
+
+            val reducedProductReleases =
+                if (productReleases.size > 2)
+                    listOf(productReleases.first(), productReleases.last())
+                else productReleases
+            println("Running pluginVerification for the following builds: $reducedProductReleases")
+
+            ides(reducedProductReleases)
+        }
+    }
+}
+
+// Configure Gradle Changelog Plugin - read more:
+// https://github.com/JetBrains/gradle-changelog-plugin
+changelog {
+    groups.empty()
+    repositoryUrl = providers.gradleProperty("pluginRepositoryUrl")
+}
+
+// Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
+kover { reports { total { xml { onCheck = true } } } }
+
+tasks {
+    wrapper { gradleVersion = providers.gradleProperty("gradleVersion").get() }
+
+    publishPlugin { dependsOn(patchChangelog) }
+}
+
+intellijPlatformTesting {
+    runIde {
+        register("runIdeForUiTests") {
+            task {
+                jvmArgumentProviders += CommandLineArgumentProvider {
+                    listOf(
+                        "-Drobot-server.port=8082",
+                        "-Dide.mac.message.dialogs.as.sheets=false",
+                        "-Djb.privacy.policy.text=<!--999.999-->",
+                        "-Djb.consents.confirmation.enabled=false",
+                    )
+                }
+            }
+
+            plugins { robotServerPlugin() }
+        }
     }
 }

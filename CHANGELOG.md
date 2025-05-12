@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated Go exported interface color.
+- Updated dependencies and build proccess.
+
+### Added
+
+- Added Kotlin DSL keyword colors.
+
 ## [1.0.10] - 2024-11-02
 
 ### Changed
@@ -45,9 +54,15 @@
 - Initial release.
 
 [Unreleased]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.10...HEAD
+
 [1.0.10]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.6...v1.0.10
+
 [1.0.6]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.4...v1.0.6
+
 [1.0.4]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.3...v1.0.4
+
 [1.0.3]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.1...v1.0.3
+
 [1.0.1]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.0...v1.0.1
+
 [1.0.0]: https://github.com/j-d-ha/Dark-Plus-Theme/commits/v1.0.0
