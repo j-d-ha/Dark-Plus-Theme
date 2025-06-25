@@ -1,4 +1,4 @@
-<scheme name="Dark+" version="142" parent_scheme="Darcula">
+<scheme name="Dark+ Darker" version="142" parent_scheme="Darcula">
     <metaInfo>
         <property name="ide">idea</property>
         <property name="ideVersion">2024.2.3.0.0</property>
@@ -30,7 +30,7 @@
         <option name="GUTTER_BACKGROUND" value="1D1D1D"/>
         <option name="INDENT_GUIDE" value="3B3B3B"/>
         <option name="JUPYTER.CODE_CELL_BACKGROUND" value="292929"/>
-        <option name="LINE_NUMBERS_COLOR" value="848484"/>
+        <option name="LINE_NUMBERS_COLOR" value="4B5059"/>
         <option name="RIGHT_MARGIN_COLOR" value="3B3B3B"/>
         <option name="SELECTION_BACKGROUND" value="264E77"/>
         <option name="VISUAL_INDENT_GUIDE" value="3B3B3B"/>
@@ -1173,7 +1173,7 @@
         <option name="TEXT">
             <value>
                 <option name="FOREGROUND" value="D4D4D4"/>
-                <option name="BACKGROUND" value="1E1E1E"/>
+                <option name="BACKGROUND" value="191A1C"/>
                 <option name="EFFECT_TYPE" value="5"/>
             </value>
         </option>

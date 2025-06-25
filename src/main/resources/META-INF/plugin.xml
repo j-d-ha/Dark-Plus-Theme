@@ -11,9 +11,13 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <themeProvider order="first" id="de6fb66b-df4f-418d-aeb0-245eeaa63bf1"
+        <themeProvider order="first" id="com.github.j-d-ha.dark-plus-theme.dark-plus"
                        path="/theme/dark-plus.theme.json"/>
-        <themeProvider order="last" id="177261f9-d3d8-4d6e-ae31-2dd15f7f7cc7"
+
+        <themeProvider order="last" id="com.github.j-d-ha.dark-plus-theme.dark-plus-alt"
                        path="/theme/dark-plus-alt.theme.json"/>
+
+        <themeProvider order="last" id="com.github.j-d-ha.dark-plus-theme.dark-plus-darker"
+                       path="/theme/dark-plus-darker.theme.json"/>
     </extensions>
 </idea-plugin>
