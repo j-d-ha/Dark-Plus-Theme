@@ -8,6 +8,10 @@
 
 - Added colors for HCL code.
 
+### Fixed
+
+- updated Go interface color to match other interfaces.
+
 ## [1.0.12] - 2025-06-25
 
 ### Added
