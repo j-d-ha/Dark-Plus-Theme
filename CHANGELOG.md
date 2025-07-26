@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added colors for HCL code.
+
 ### Fixed
 
 - updated Go interface color to match other interfaces.
