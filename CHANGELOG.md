@@ -4,13 +4,15 @@
 
 ## [Unreleased]
 
+## [1.0.13] - 2025-07-26
+
 ### Added
 
 - Added colors for HCL code.
 
 ### Fixed
 
-- updated Go interface color to match other interfaces.
+- Updated Go interface color to match other interfaces.
 
 ## [1.0.12] - 2025-06-25
 
@@ -71,20 +73,13 @@
 
 - Initial release.
 
-[Unreleased]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.12...HEAD
-
+[Unreleased]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.13...HEAD
+[1.0.13]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.11...v1.0.12
-
 [1.0.11]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.10...v1.0.11
-
 [1.0.10]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.6...v1.0.10
-
 [1.0.6]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.4...v1.0.6
-
 [1.0.4]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.3...v1.0.4
-
 [1.0.3]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.1...v1.0.3
-
 [1.0.1]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.0...v1.0.1
-
 [1.0.0]: https://github.com/j-d-ha/Dark-Plus-Theme/commits/v1.0.0
