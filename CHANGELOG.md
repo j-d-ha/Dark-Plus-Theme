@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added support for F#.
+
 ### Fixed
 
 - Fixed issues with build verification.
@@ -80,7 +84,6 @@
 ### Added
 
 - Initial release.
-
 
 [Unreleased]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.13...HEAD
 
