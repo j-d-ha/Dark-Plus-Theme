@@ -4,13 +4,23 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed issues with build verification.
+
+### Changed
+
+- Updated dependencies.
+
+## [1.0.13] - 2025-07-26
+
 ### Added
 
 - Added colors for HCL code.
 
 ### Fixed
 
-- updated Go interface color to match other interfaces.
+- Updated Go interface color to match other interfaces.
 
 ## [1.0.12] - 2025-06-25
 
@@ -71,7 +81,10 @@
 
 - Initial release.
 
-[Unreleased]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.12...HEAD
+
+[Unreleased]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.13...HEAD
+
+[1.0.13]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.12...v1.0.13
 
 [1.0.12]: https://github.com/j-d-ha/Dark-Plus-Theme/compare/v1.0.11...v1.0.12
 
