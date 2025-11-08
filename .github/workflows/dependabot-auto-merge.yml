@@ -1,17 +1,15 @@
 # GitHub Actions Workflow for auto-merging Dependabot pull requests.
 #
-# This workflow automatically approves and enables auto-merge for Dependabot PRs
-# that contain only patch or minor version updates. Major version updates require
-# manual review to prevent breaking changes.
+# This workflow calls the reusable Dependabot auto-merge workflow from the
+# shared .github repository. This reduces code duplication across repositories
+# and centralizes the auto-merge logic.
 #
-# The workflow:
-# 1. Verifies the PR was created by Dependabot
-# 2. Fetches Dependabot metadata to determine update type
-# 3. Auto-approves patch and minor updates
-# 4. Enables GitHub's native auto-merge feature
-# 5. GitHub auto-merges when all required CI checks pass
-#
-# Security: Uses minimal permissions and validates actor is dependabot[bot]
+# Configuration:
+# - Auto-merge patch updates: enabled
+# - Auto-merge minor updates: enabled
+# - Auto-merge major updates: disabled (manual review required)
+# - Merge method: squash
+# - Delete branch after merge: enabled
 
 name: Dependabot Auto-Merge
 
@@ -25,43 +23,10 @@ permissions:
 
 jobs:
   auto-merge:
-    name: Auto-merge Dependabot PRs
-    runs-on: ubuntu-latest
-    # Only run for Dependabot PRs
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
-    steps:
-      - name: Fetch Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v2
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Display update information
-        run: |
-          echo "Update type: ${{ steps.metadata.outputs.update-type }}"
-          echo "Dependency names: ${{ steps.metadata.outputs.dependency-names }}"
-          echo "Previous version: ${{ steps.metadata.outputs.previous-version }}"
-          echo "New version: ${{ steps.metadata.outputs.new-version }}"
-
-      - name: Auto-approve and enable auto-merge
-        # Only auto-merge patch and minor updates (exclude major updates)
-        if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: |
-          echo "Approving PR #${{ github.event.pull_request.number }}"
-          gh pr review "${{ github.event.pull_request.number }}" --approve --body "Auto-approving ${{ steps.metadata.outputs.update-type }} update for Dependabot PR."
-
-          echo "Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
-          gh pr merge "${{ github.event.pull_request.number }}" --auto --squash --delete-branch
-
-          echo "✅ Auto-merge enabled. PR will merge automatically when all required checks pass."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-
-      - name: Log major update
-        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
-        run: |
-          echo "⚠️ Major version update detected. Manual review required."
-          echo "This PR will NOT be auto-merged to prevent potential breaking changes."
+    uses: j-d-ha/.github/.github/workflows/dependabot-auto-merge.yml@main
+    with:
+      merge-method: 'squash'
+      auto-merge-patch: true
+      auto-merge-minor: true
+      auto-merge-major: false
+      delete-branch: true

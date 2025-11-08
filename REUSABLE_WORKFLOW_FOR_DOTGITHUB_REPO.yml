@@ -1,0 +1,124 @@
+# ==============================================================================
+# ADD THIS FILE TO YOUR .github REPOSITORY
+# ==============================================================================
+#
+# Location: .github/.github/workflows/dependabot-auto-merge.yml
+#
+# This is a REUSABLE workflow that can be called from any of your repositories.
+# After adding this to your .github repo, you can call it from other repos
+# with a minimal caller workflow.
+#
+# ==============================================================================
+
+# GitHub Actions Reusable Workflow for auto-merging Dependabot pull requests.
+#
+# This workflow automatically approves and enables auto-merge for Dependabot PRs
+# that contain only patch or minor version updates. Major version updates require
+# manual review to prevent breaking changes.
+#
+# The workflow:
+# 1. Verifies the PR was created by Dependabot
+# 2. Fetches Dependabot metadata to determine update type
+# 3. Auto-approves patch and minor updates
+# 4. Enables GitHub's native auto-merge feature
+# 5. GitHub auto-merges when all required CI checks pass
+#
+# Security: Uses minimal permissions and validates actor is dependabot[bot]
+
+name: Dependabot Auto-Merge (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      merge-method:
+        description: 'Merge method to use (squash, merge, or rebase)'
+        required: false
+        type: string
+        default: 'squash'
+      auto-merge-patch:
+        description: 'Enable auto-merge for patch updates'
+        required: false
+        type: boolean
+        default: true
+      auto-merge-minor:
+        description: 'Enable auto-merge for minor updates'
+        required: false
+        type: boolean
+        default: true
+      auto-merge-major:
+        description: 'Enable auto-merge for major updates'
+        required: false
+        type: boolean
+        default: false
+      delete-branch:
+        description: 'Delete branch after merge'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto-merge Dependabot PRs
+    runs-on: ubuntu-latest
+    # Only run for Dependabot PRs
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Display update information
+        run: |
+          echo "Update type: ${{ steps.metadata.outputs.update-type }}"
+          echo "Dependency names: ${{ steps.metadata.outputs.dependency-names }}"
+          echo "Previous version: ${{ steps.metadata.outputs.previous-version }}"
+          echo "New version: ${{ steps.metadata.outputs.new-version }}"
+
+      - name: Check if auto-merge is enabled for this update type
+        id: check
+        run: |
+          UPDATE_TYPE="${{ steps.metadata.outputs.update-type }}"
+          SHOULD_MERGE="false"
+
+          if [[ "$UPDATE_TYPE" == "version-update:semver-patch" && "${{ inputs.auto-merge-patch }}" == "true" ]]; then
+            SHOULD_MERGE="true"
+          elif [[ "$UPDATE_TYPE" == "version-update:semver-minor" && "${{ inputs.auto-merge-minor }}" == "true" ]]; then
+            SHOULD_MERGE="true"
+          elif [[ "$UPDATE_TYPE" == "version-update:semver-major" && "${{ inputs.auto-merge-major }}" == "true" ]]; then
+            SHOULD_MERGE="true"
+          fi
+
+          echo "should-merge=$SHOULD_MERGE" >> $GITHUB_OUTPUT
+          echo "Should auto-merge: $SHOULD_MERGE"
+
+      - name: Auto-approve and enable auto-merge
+        if: steps.check.outputs.should-merge == 'true'
+        run: |
+          echo "Approving PR #${{ github.event.pull_request.number }}"
+          gh pr review "${{ github.event.pull_request.number }}" --approve --body "Auto-approving ${{ steps.metadata.outputs.update-type }} update for Dependabot PR."
+
+          MERGE_CMD="gh pr merge \"${{ github.event.pull_request.number }}\" --auto --${{ inputs.merge-method }}"
+
+          if [[ "${{ inputs.delete-branch }}" == "true" ]]; then
+            MERGE_CMD="$MERGE_CMD --delete-branch"
+          fi
+
+          echo "Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
+          eval $MERGE_CMD
+
+          echo "✅ Auto-merge enabled. PR will merge automatically when all required checks pass."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Log skipped update
+        if: steps.check.outputs.should-merge == 'false'
+        run: |
+          echo "⚠️ Auto-merge not enabled for ${{ steps.metadata.outputs.update-type }} updates."
+          echo "This PR will require manual review and merge."
